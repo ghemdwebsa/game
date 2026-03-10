@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البحث عن الكنز - غِـمْـد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-brown: #33211a;
+            --cream-bg: #f4ece1;
+            --olive: #6B6B4B;
+            --gold: #d4a373;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--cream-bg);
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        header {
+            background: var(--dark-brown);
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        /* شاشة سياسة اللعب */
+        #intro-screen {
+            max-width: 650px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .policy-list {
+            text-align: right;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 6px solid var(--olive);
+        }
+
+        .btn-start {
+            background: var(--olive);
+            color: white;
+            padding: 18px 60px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-start:hover { background: var(--dark-brown); transform: scale(1.05); }
+
+        /* منطقة اللعب */
+        #play-container { display: none; }
+
+        .stats-bar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom: 3px solid var(--olive);
+            font-weight: 900;
+        }
+
+        #timer-box {
+            color: #c0392b;
+            font-size: 1.8rem;
+            background: #fdf2f2;
+            padding: 5px 25px;
+            border-radius: 12px;
+            border: 2px solid #f5c6cb;
+        }
+
+        #game-area {
+            position: relative;
+            width: 100vw;
+            height: calc(100vh - 180px);
+            background: var(--cream-bg);
+            cursor: cell; /* تغيير شكل الماوس للبحث */
+        }
+
+        .target-item {
+            position: absolute;
+            font-size: 2.5rem;
+            cursor: pointer;
+            opacity: 0; /* مخفية تماماً */
+            transition: opacity 0.2s;
+        }
+
+        /* تظهر خفيف جداً لما يمر الماوس فوقها */
+        .target-item:hover {
+            opacity: 0.3;
+        }
+
+        .found { visibility: hidden; pointer-events: none; }
+
+        .overlay-msg {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 60px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 0 100px rgba(0,0,0,0.4);
+            z-index: 300;
+        }
+
+        footer {
+            background: var(--dark-brown);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.6rem; font-weight: 900; letter-spacing: 1px;">غِـمْـد | رادار الكنوز</div>
+    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">🏠 العودة</a>
+</header>
+
+<div id="intro-screen">
+    <h1 style="color: var(--dark-brown); margin-top: 0;">📜 سياسة وقوانين اللعبة</h1>
+    <div class="policy-list">
+        <p>• <b>السرية التامة:</b> الكنوز مخفية تماماً، استخدم الماوس لمسح الشاشة واكتشافها.</p>
+        <p>• <b>العدد الإجمالي:</b> يجب عليك إيجاد <b>30 قطعة</b> أثرية سعودية.</p>
+        <p>• <b>الوقت:</b> لديك 5 دقائق فقط (300 ثانية) قبل ضياع الكنز.</p>
+        <p>• <b>التحذير:</b> أي خروج من الصفحة سيعيد تصفير العداد وتغيير أماكن الكنوز.</p>
+    </div>
+    <p style="color: #666; font-style: italic;">"البحث يحتاج صبرًا كصبر الفرسان.."</p>
+    <button class="btn-start" onclick="startGame()">فهمت، ابدأ التحدي ⚔️</button>
+</div>
+
+<div id="play-container">
+    <div class="stats-bar">
+        <div id="timer-box"><span id="time-left">05:00</span></div>
+        <div style="color: var(--olive);">🌴 نخل: <span id="palm-count">10</span></div>
+        <div style="color: var(--olive);">🐪 جمل: <span id="camel-count">10</span></div>
+        <div style="color: var(--olive);">☕ دلة: <span id="coffee-count">10</span></div>
+    </div>
+    <div id="game-area"></div>
+</div>
+
+<div id="win-msg" class="overlay-msg">
+    <h1 style="color: var(--olive); font-size: 3rem;">نصرٌ مبين! 🏆</h1>
+    <p style="font-size: 1.2rem;">لقد أثبتّ أنك خبير بالصحراء وكنوزها.</p>
+    <button class="btn-start" onclick="location.reload()">لعب مرة أخرى</button>
+</div>
+
+<div id="lose-msg" class="overlay-msg">
+    <h1 style="color: #c0392b;">نفد الوقت! ⏳</h1>
+    <p style="font-size: 1.2rem;">غارت الكنوز في الرمال.. حاول مجددًا</p>
+    <button class="btn-start" onclick="location.reload()">إعادة المحاولة</button>
+</div>
+
+<footer>جميع الحقوق محفوظة لصالح غِـمْـد &copy; 2026</footer>
+
+<script>
+    let remaining = { palm: 10, camel: 10, coffee: 10 };
+    let totalSeconds = 300; 
+    let timerInterval;
+
+    function startGame() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('play-container').style.display = 'block';
+        
+        // توزيع 30 عنصر
+        spawnItems('palm', '🌴', 10);
+        spawnItems('camel', '🐪', 10);
+        spawnItems('coffee', '☕', 10);
+        
+        startTimer();
+    }
+
+    function spawnItems(type, emoji, count) {
+        const area = document.getElementById('game-area');
+        for (let i = 0; i < count; i++) {
+            const el = document.createElement('div');
+            el.className = 'target-item';
+            el.innerHTML = emoji;
+            
+            // توزيع عشوائي في كامل مساحة اللعب
+            el.style.left = (Math.random() * 92 + 2) + '%';
+            el.style.top = (Math.random() * 88 + 2) + '%';
+            
+            el.onclick = function() {
+                if(!this.classList.contains('found')) {
+                    this.classList.add('found');
+                    remaining[type]--;
+                    document.getElementById(`${type}-count`).innerText = remaining[type];
+                    checkWin();
+                }
+            };
+            area.appendChild(el);
+        }
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+            document.getElementById('time-left').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('lose-msg').style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    function checkWin() {
+        if (remaining.palm === 0 && remaining.camel === 0 && remaining.coffee === 0) {
+            clearInterval(timerInterval);
+            document.getElementById('win-msg').style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>

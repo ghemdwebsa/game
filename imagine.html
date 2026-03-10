@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اذكر خمسة - غمد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-brown: #33211a;
+            --cream-bg: #f4ece1;
+            --olive-ghimd: #6B6B4B;
+            --gold: #d4a373;
+            --white: #ffffff;
+            --danger: #c0392b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--cream-bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--dark-brown);
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* شاشة السياسة */
+        #intro-screen {
+            max-width: 600px;
+            margin: 60px auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+
+        .policy-box {
+            text-align: right;
+            background: #fafafa;
+            padding: 25px;
+            border-right: 6px solid var(--olive-ghimd);
+            margin: 25px 0;
+            line-height: 1.8;
+        }
+
+        .btn-start {
+            background: var(--olive-ghimd);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* واجهة اللعب */
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 20px;
+            flex: 1;
+            text-align: center;
+            display: none;
+        }
+
+        .timer-circle {
+            width: 100px;
+            height: 100px;
+            background: var(--white);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 6px solid var(--olive-ghimd);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--dark-brown);
+            transition: 0.3s;
+        }
+
+        .timer-low {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        .card {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid #e0d5c5;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .q-number {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 2.3rem;
+            color: var(--dark-brown);
+            font-weight: 900;
+            line-height: 1.4;
+        }
+
+        .btn-next {
+            background: var(--olive-ghimd);
+            color: white;
+            padding: 18px 60px;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Cairo';
+            font-weight: bold;
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin-top: 40px;
+            transition: 0.3s;
+        }
+
+        .btn-next:hover { background: var(--dark-brown); transform: scale(1.05); }
+
+        footer { background: var(--dark-brown); color: white; text-align: center; padding: 20px; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.5rem; font-weight: 900;">غمد | اذكر خمسة</div>
+    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">الرئيسية</a>
+</header>
+
+<div id="intro-screen">
+    <h1 style="color: var(--dark-brown);">سياسة فقرة اذكر خمسة</h1>
+    <div class="policy-box">
+        <p>• المهمة: اذكر خمسة أشياء تتعلق بالموضوع المطلوب فوراً.</p>
+        <p>• الوقت: لديك 15 ثانيةً فقط لكل سؤال.</p>
+        <p>• التحدي: يجب أن تكون سريعاً جداً قبل انتهاء الوقت.</p>
+        <p>• القاعدة: اللعبة سهلةً وممتعةً لجميع أفراد العائلة.</p>
+    </div>
+    <button class="btn-start" onclick="startGame()">ابدأ التحدي الآن</button>
+</div>
+
+<div class="container" id="game-container">
+    <div class="timer-circle" id="timer">15</div>
+    <div class="card">
+        <div class="q-number" id="q-num">#1</div>
+        <div class="question-text" id="q-text">اذكر خمسة أنواع من الفواكه</div>
+    </div>
+    <button class="btn-next" onclick="nextQuestion()">السؤال التالي ⬅️</button>
+</div>
+
+<footer>جميع الحقوق محفوظة لمتجر غمد &copy; 2026</footer>
+
+<script>
+    const questions = [
+        "اذكر خمسة أنواع من الفواكه",
+        "اذكر خمسة ألوان تراها حولك الآن",
+        "اذكر خمسة أسماء لحيوانات أليفة",
+        "اذكر خمسة أشياء نلبسها في الشتاء",
+        "اذكر خمسة ألعاب تحب لعبها",
+        "اذكر خمسة أشياء نجدها في المدرسة",
+        "اذكر خمسة أنواع من الخضروات",
+        "اذكر خمسة أشياء موجودة في الحديقة",
+        "اذكر خمسة أسماء لأولاد",
+        "اذكر خمسة أسماء لبنات",
+        "اذكر خمسة أشياء نراها في السماء",
+        "اذكر خمسة أنواع من الحلويات",
+        "اذكر خمسة أشياء نجدها في المطبخ",
+        "اذكر خمسة حيوانات تعيش في الغابة",
+        "اذكر خمسة أشياء موجودة في غرفتك",
+        "اذكر خمسة ألوان للسيارات",
+        "اذكر خمسة أشياء نجدها في السوبر ماركت",
+        "اذكر خمسة طيور جميلة",
+        "اذكر خمسة أشياء في شنطة المدرسة",
+        "اذكر خمسة أنواع من العصائر",
+        "اذكر خمسة حيوانات تطير",
+        "اذكر خمسة أشياء نجدها في الحمام",
+        "اذكر خمسة أشياء مصنوعة من الورق",
+        "اذكر خمسة أشياء نراها في الشارع",
+        "اذكر خمسة حيوانات تعيش في البحر",
+        "اذكر خمسة أشياء نجدها في الصالة",
+        "اذكر خمسة أشياء نستخدمها للأكل",
+        "اذكر خمسة أشياء لونها أحمر",
+        "اذكر خمسة أشياء لونها أخضر",
+        "اذكر خمسة أشكال هندسية",
+        "اذكر خمسة أشياء نجدها في المسجد",
+        "اذكر خمسة أشياء تجعلك تضحك",
+        "اذكر خمسة حيوانات تأكل العشب",
+        "اذكر خمسة أشياء موجودة في الملعب",
+        "اذكر خمسة أنواع من البسكويت",
+        "اذكر خمسة أشياء نجدها في المستشفى",
+        "اذكر خمسة أشياء نجدها في المطار",
+        "اذكر خمسة أشياء نجدها في المزرعة",
+        "اذكر خمسة أسماء لمهن تحبها",
+        "اذكر خمسة أشياء لونها أزرق",
+        "اذكر خمسة أشياء عند الحلاق",
+        "اذكر خمسة حيوانات صوتها عالٍ",
+        "اذكر خمسة أشياء في خزانة الملابس",
+        "اذكر خمسة أنواع من الرياضات",
+        "اذكر خمسة أشياء نجدها في المكتبة",
+        "اذكر خمسة أشياء نجدها في السيارة",
+        "اذكر خمسة أنواع من الورود",
+        "اذكر خمسة أشياء نجدها في بيت الجد",
+        "اذكر خمسة أشياء تجعل يومك جميلاً",
+        "اذكر خمسة هدايا تحبها"
+    ];
+
+    let currentIndex = 0;
+    let timeLeft = 15;
+    let timerId;
+
+    function startGame() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerId);
+        timeLeft = 15;
+        const timerEl = document.getElementById('timer');
+        timerEl.innerText = timeLeft;
+        timerEl.classList.remove('timer-low');
+
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            
+            if (timeLeft <= 5) {
+                timerEl.classList.add('timer-low');
+            }
+
+            if (timeLeft <= 0) {
+                nextQuestion();
+            }
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < questions.length) {
+            document.getElementById('q-text').innerText = questions[currentIndex];
+            document.getElementById('q-num').innerText = "#" + (currentIndex + 1);
+            startTimer();
+        } else {
+            clearInterval(timerId);
+            document.getElementById('game-container').innerHTML = "<h2 style='color:var(--olive-ghimd)'>انتهت الأسئلة! 🏆</h2><button class='btn-next' onclick='location.reload()'>إعادة</button>";
+        }
+    }
+</script>
+</body>
+</html>

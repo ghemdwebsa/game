@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الألوان - غمد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-brown: #33211a;
+            --cream-bg: #f4ece1;
+            --olive-ghimd: #6B6B4B;
+            --gold: #d4a373;
+            --white: #ffffff;
+            --danger: #c0392b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--cream-bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--dark-brown);
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #intro-screen {
+            max-width: 600px;
+            margin: 60px auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+
+        .policy-box {
+            text-align: right;
+            background: #fafafa;
+            padding: 25px;
+            border-right: 6px solid var(--olive-ghimd);
+            margin: 25px 0;
+        }
+
+        .btn-start {
+            background: var(--olive-ghimd);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #game-container {
+            display: none;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .timer-circle {
+            width: 80px; height: 80px;
+            background: white; border: 5px solid var(--olive-ghimd);
+            border-radius: 50%; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 900;
+            transition: 0.2s;
+        }
+
+        .timer-low { border-color: var(--danger); color: var(--danger); transform: scale(1.1); }
+
+        .color-card {
+            background: white;
+            border-radius: 30px;
+            padding: 80px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            border: 1px solid #e0d5c5;
+        }
+
+        .color-word {
+            font-size: 7rem;
+            font-weight: 900;
+            margin: 20px 0;
+        }
+
+        footer { background: var(--dark-brown); color: white; text-align: center; padding: 20px; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.5rem; font-weight: 900;">غمد | تحدي الألوان</div>
+    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">الرئيسية</a>
+</header>
+
+<div id="intro-screen">
+    <h1 style="color: var(--dark-brown);">تحدي الـ 3 ثواني</h1>
+    <div class="policy-box">
+        <p>• الهدف: انطق اللون الذي تراه عيناك فقط.</p>
+        <p>• السرعة: لديك 3 ثوانٍ فقط لكل كلمة.</p>
+        <p>• الانتقال: سيتغير اللون تلقائياً وبسرعةً كبيرةً.</p>
+        <p>• التنبيه: ركز جيداً ولا تقرأ المكتوب!</p>
+    </div>
+    <button class="btn-start" onclick="startGame()">ابدأ التحدي الخارق ⚡</button>
+</div>
+
+<div id="game-container">
+    <div class="timer-circle" id="timer">3</div>
+    <div class="color-card">
+        <div class="color-word" id="word-display">استعد</div>
+        <p style="color: #666;">انطق اللون فوراً!</p>
+    </div>
+</div>
+
+<footer>جميع الحقوق محفوظة لمتجر غمد &copy; 2026</footer>
+
+<script>
+    const data = [
+        { text: "أخضر", color: "red" },
+        { text: "أزرق", color: "green" },
+        { text: "أصفر", color: "blue" },
+        { text: "أحمر", color: "orange" },
+        { text: "برتقالي", color: "purple" },
+        { text: "بنفسجي", color: "black" },
+        { text: "أسود", color: "gold" },
+        { text: "بني", color: "blue" },
+        { text: "أزرق", color: "red" },
+        { text: "أحمر", color: "green" },
+        { text: "أخضر", color: "black" },
+        { text: "أصفر", color: "purple" },
+        { text: "أبيض", color: "brown" },
+        { text: "رمادي", color: "red" },
+        { text: "بنفسجي", color: "green" },
+        { text: "أحمر", color: "blue" },
+        { text: "أصفر", color: "green" },
+        { text: "برتقالي", color: "black" }
+    ];
+
+    let currentIndex = 0;
+    let timeLeft = 3;
+    let timerId;
+
+    function startGame() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        updateDisplay();
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerId);
+        timeLeft = 3;
+        const timerEl = document.getElementById('timer');
+        timerEl.innerText = timeLeft;
+        timerEl.classList.remove('timer-low');
+
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            
+            if (timeLeft <= 1) timerEl.classList.add('timer-low');
+
+            if (timeLeft <= 0) {
+                nextColor();
+            }
+        }, 1000);
+    }
+
+    function updateDisplay() {
+        const item = data[currentIndex];
+        const display = document.getElementById('word-display');
+        display.innerText = item.text;
+        display.style.color = item.color;
+    }
+
+    function nextColor() {
+        currentIndex++;
+        if (currentIndex < data.length) {
+            updateDisplay();
+            startTimer();
+        } else {
+            clearInterval(timerId);
+            document.getElementById('game-container').innerHTML = "<h2>انتهى التحدي الخارق! 🏆</h2><button class='btn-start' onclick='location.reload()'>إعادة</button>";
+        }
+    }
+</script>
+</body>
+</html>

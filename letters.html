@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الحروف - غمد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-brown: #33211a;
+            --cream-bg: #f4ece1;
+            --olive-ghimd: #6B6B4B;
+            --gold: #d4a373;
+            --white: #ffffff;
+            --danger: #c0392b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--cream-bg);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--dark-brown);
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #intro-screen {
+            max-width: 600px;
+            margin: 60px auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+
+        .policy-box {
+            text-align: right;
+            background: #fafafa;
+            padding: 25px;
+            border-right: 6px solid var(--olive-ghimd);
+            margin: 25px 0;
+        }
+
+        .btn-start {
+            background: var(--olive-ghimd);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #game-container {
+            display: none;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .timer-circle {
+            width: 80px; height: 80px;
+            background: white; border: 5px solid var(--olive-ghimd);
+            border-radius: 50%; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 900;
+        }
+
+        .timer-low { border-color: var(--danger); color: var(--danger); }
+
+        .letter-card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            border: 1px solid #e0d5c5;
+        }
+
+        .big-letter {
+            font-size: 10rem;
+            color: var(--dark-brown);
+            font-weight: 900;
+            margin: 10px 0;
+        }
+
+        .targets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .target-box {
+            background: var(--cream-bg);
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: var(--olive-ghimd);
+        }
+
+        footer { background: var(--dark-brown); color: white; text-align: center; padding: 20px; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.5rem; font-weight: 900;">غمد | تحدي الحروف</div>
+    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">الرئيسية</a>
+</header>
+
+<div id="intro-screen">
+    <h1 style="color: var(--dark-brown);">تحدي الـ 5 ثواني</h1>
+    <div class="policy-box">
+        <p>• المهمة: اذكر (اسم، جماد، بلاد) يبدأ بالحرف المعروض فوراً.</p>
+        <p>• الوقت: لديك 5 ثوانٍ فقط لكل حرف.</p>
+        <p>• الانتقال: سيتغير الحرف تلقائياً وبسرعةً كبيرةً جداً.</p>
+        <p>• التحدي: يجب أن تكون سريعاً جداً قبل ضياع الفرصة.</p>
+    </div>
+    <button class="btn-start" onclick="startGame()">ابدأ التحدي السريع ⚡</button>
+</div>
+
+<div id="game-container">
+    <div class="timer-circle" id="timer">5</div>
+    <div class="letter-card">
+        <div style="color: var(--gold); font-weight: bold;">الحرف الحالي</div>
+        <div class="big-letter" id="current-letter">أ</div>
+        <div class="targets">
+            <div class="target-box">اسم</div>
+            <div class="target-box">جماد</div>
+            <div class="target-box">بلاد</div>
+        </div>
+    </div>
+</div>
+
+<footer>جميع الحقوق محفوظة لمتجر غمد &copy; 2026</footer>
+
+<script>
+    const letters = ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "هـ", "و", "ي"];
+    let currentIndex = 0;
+    let timeLeft = 5;
+    let timerId;
+
+    function startGame() {
+        document.getElementById('intro-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(timerId);
+        timeLeft = 5;
+        const timerEl = document.getElementById('timer');
+        timerEl.innerText = timeLeft;
+        timerEl.classList.remove('timer-low');
+
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerEl.innerText = timeLeft;
+            if (timeLeft <= 2) timerEl.classList.add('timer-low');
+            if (timeLeft <= 0) nextLetter();
+        }, 1000);
+    }
+
+    function nextLetter() {
+        currentIndex++;
+        if (currentIndex < letters.length) {
+            document.getElementById('current-letter').innerText = letters[currentIndex];
+            startTimer();
+        } else {
+            clearInterval(timerId);
+            document.getElementById('game-container').innerHTML = "<h2>أنت سريعاً جداً! انتهى التحدي 🏆</h2><button class='btn-start' onclick='location.reload()'>إعادة</button>";
+        }
+    }
+</script>
+</body>
+</html>
